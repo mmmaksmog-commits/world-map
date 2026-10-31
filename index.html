@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Страны мира — скретч-карта путешествий</title>
+  <meta name="description" content="Скретч-карта путешествий: отмечайте страны, где побывали, и мечты. Процент мира, континенты, достижения.">
+  <meta name="theme-color" content="#0c1a2b">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌍</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #0c1a2b; --card: #13243a; --card2: #1a3150; --line: #24426a; --text: #eaf2ff; --muted: #8ea6c6; --gold: #fbbf24; --teal: #2dd4bf; color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: radial-gradient(circle at 50% -10%, #1d3f6b, var(--bg) 60%); background-color: var(--bg); color: var(--text); font: 15px/1.5 Inter, system-ui, sans-serif; }
+    button, input { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .app { max-width: 820px; margin: 0 auto; padding: calc(22px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)); }
+    .hero { display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center; padding: 22px; border-radius: 28px; background: linear-gradient(135deg, var(--card2), var(--card)); }
+    .globe { width: 104px; height: 104px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--teal) calc(var(--p) * 1%), rgba(255, 255, 255, 0.08) 0); }
+    .globe span { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; background: var(--card); font: 800 22px Unbounded, sans-serif; }
+    .hero h1 { margin: 0; font: 800 clamp(22px, 5vw, 30px)/1.1 Unbounded, sans-serif; }
+    .hero p { margin: 6px 0 0; color: var(--muted); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .chip { padding: 4px 10px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); font-size: 13px; font-weight: 600; }
+    .continents { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 10px; margin-top: 14px; }
+    .cont { padding: 14px; border: 2px solid transparent; border-radius: 20px; background: var(--card); text-align: left; }
+    .cont.on { border-color: var(--teal); }
+    .cont b { display: flex; justify-content: space-between; }
+    .cont small { color: var(--muted); }
+    .cont .bar { height: 6px; margin-top: 8px; border-radius: 3px; background: var(--card2); overflow: hidden; }
+    .cont .bar i { display: block; height: 100%; background: var(--teal); border-radius: 3px; }
+    .tools { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 16px; padding: 10px 0; background: var(--bg); }
+    .tools input { flex: 1; min-width: 160px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--card); font-size: 16px; outline: none; }
+    .mode { display: flex; padding: 4px; border-radius: 14px; background: var(--card); }
+    .mode button { padding: 8px 14px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 700; }
+    .mode button.on { background: var(--teal); color: #042f2a; }
+    .mode button.on.wish { background: var(--gold); color: #3b2a00; }
+    .flags { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+    .flag { position: relative; display: grid; justify-items: center; gap: 4px; padding: 12px 4px 10px; border: 2px solid transparent; border-radius: 16px; background: var(--card); transition: transform 0.12s; }
+    .flag:active { transform: scale(0.95); }
+    .flag span { font-size: 34px; line-height: 1; filter: grayscale(1) opacity(0.45); transition: filter 0.3s; }
+    .flag small { font-size: 12px; color: var(--muted); line-height: 1.2; text-align: center; }
+    .flag.v { border-color: var(--teal); background: var(--card2); }
+    .flag.v span { filter: none; }
+    .flag.v small { color: var(--text); }
+    .flag.w { border-color: var(--gold); }
+    .flag.w span { filter: grayscale(0.3); }
+    .flag.w::after { content: '⭐'; position: absolute; top: 4px; right: 6px; font-size: 12px; }
+    .flag.pop span { animation: pop 0.35s; }
+    @keyframes pop { 50% { transform: scale(1.35) rotate(-8deg); } }
+    .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 22px; }
+    .badge { padding: 14px; border-radius: 18px; background: var(--card); opacity: 0.4; }
+    .badge.got { opacity: 1; box-shadow: inset 0 0 0 1px var(--gold); }
+    .badge span { font-size: 26px; }
+    .badge b { display: block; font-size: 14px; }
+    .badge small { color: var(--muted); }
+    h2 { margin: 24px 0 0; font-size: 18px; }
+    .share { margin-top: 18px; width: 100%; padding: 14px; border: 0; border-radius: 16px; background: var(--teal); color: #042f2a; font-weight: 800; }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="globe" id="globe"><span id="pct">0%</span></div>
+      <div>
+        <h1 id="title">0 стран</h1>
+        <p id="subtitle">Отметьте страны, в которых побывали</p>
+        <div class="chips" id="chips"></div>
+      </div>
+    </section>
+    <div class="continents" id="continents"></div>
+    <div class="tools">
+      <input type="search" id="search" placeholder="Найти страну" aria-label="Поиск страны">
+      <div class="mode" role="group" aria-label="Что отмечать"><button class="on" data-mode="v">✓ Был</button><button class="wish" data-mode="w">⭐ Хочу</button></div>
+    </div>
+    <div class="flags" id="flags"></div>
+    <h2>Достижения</h2>
+    <div class="badges" id="badges"></div>
+    <button class="share" id="share">Поделиться результатом</button>
+  </main>
+
+  <script>
+    const WORLD = {
+      'Европа': 'AL AD AM AT AZ BY BE BA BG HR CY CZ DK EE FI FR GE DE GR HU IS IE IT LV LI LT LU MT MD MC ME NL MK NO PL PT RO RU SM RS SK SI ES SE CH UA GB VA',
+      'Азия': 'AF BH BD BT BN KH CN IN ID IR IQ IL JP JO KZ KW KG LA LB MY MV MN MM NP KP OM PK PS PH QA SA SG KR LK SY TW TJ TH TL TR TM AE UZ VN YE',
+      'Африка': 'DZ AO BJ BW BF BI CV CM CF TD KM CG CD CI DJ EG GQ ER SZ ET GA GM GH GN GW KE LS LR LY MG MW ML MR MU MA MZ NA NE NG RW ST SN SC SL SO ZA SS SD TZ TG TN UG ZM ZW',
+      'Северная Америка': 'AG BS BB BZ CA CR CU DM DO SV GD GT HT HN JM MX NI PA KN LC VC TT US',
+      'Южная Америка': 'AR BO BR CL CO EC GY PY PE SR UY VE',
+      'Океания': 'AU FJ KI MH FM NR NZ PW PG WS SB TO TV VU',
+    };
+    const ICONS = { 'Европа': '🏰', 'Азия': '🏯', 'Африка': '🦁', 'Северная Америка': '🗽', 'Южная Америка': '🦜', 'Океания': '🏝️' };
+    const names = new Intl.DisplayNames(['ru'], { type: 'region' });
+    const flag = (c) => String.fromCodePoint(...[...c].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65));
+    const COUNTRIES = Object.entries(WORLD).flatMap(([cont, list]) => list.split(' ').map((code) => ({ code, cont, name: names.of(code) })));
+    const TOTAL = COUNTRIES.length;
+    const $ = (id) => document.getElementById(id);
+    const store = { get: (k, d) => { try { return JSON.parse(localStorage.getItem('world_' + k)) ?? d; } catch { return d; } }, set: (k, v) => { try { localStorage.setItem('world_' + k, JSON.stringify(v)); } catch {} } };
+    let marks = store.get('marks', { RU: 'v', TR: 'v', GE: 'v', AE: 'v', TH: 'v', IT: 'w', JP: 'w', IS: 'w' });
+    let mode = 'v', cont = null, q = '', popCode = null;
+    const plural = (n, a, b, c) => { const m = n % 10, h = n % 100; return m === 1 && h !== 11 ? a : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? b : c; };
+    const BADGES = [['✈️', 'Первый штамп', 'Посетить 1 страну', (s) => s.v >= 1], ['🧳', 'Путешественник', '10 стран', (s) => s.v >= 10], ['🌐', 'Гражданин мира', '30 стран', (s) => s.v >= 30], ['🗺️', 'Три континента', 'Побывать на 3 континентах', (s) => s.conts >= 3], ['🏆', 'Все континенты', 'Побывать на всех 6', (s) => s.conts >= 6], ['🇪🇺', 'Европеец', '10 стран Европы', (s) => s.by['Европа'] >= 10], ['🌏', 'Азиат', '10 стран Азии', (s) => s.by['Азия'] >= 10], ['⭐', 'Мечтатель', '10 стран в списке «Хочу»', (s) => s.w >= 10]];
+
+    function stats() {
+      const v = COUNTRIES.filter((c) => marks[c.code] === 'v');
+      const by = Object.fromEntries(Object.keys(WORLD).map((k) => [k, v.filter((c) => c.cont === k).length]));
+      return { v: v.length, w: Object.values(marks).filter((m) => m === 'w').length, by, conts: Object.values(by).filter(Boolean).length };
+    }
+    function render() {
+      const s = stats();
+      const pct = (s.v / TOTAL) * 100;
+      $('globe').style.setProperty('--p', pct.toFixed(1));
+      $('pct').textContent = `${pct < 10 ? pct.toFixed(1) : Math.round(pct)}%`;
+      $('title').textContent = `${s.v} ${plural(s.v, 'страна', 'страны', 'стран')} из ${TOTAL}`;
+      $('subtitle').textContent = s.v ? `${s.conts} из 6 континентов · в планах ещё ${s.w}` : 'Отметьте страны, в которых побывали';
+      $('chips').innerHTML = COUNTRIES.filter((c) => marks[c.code] === 'v').slice(0, 12).map((c) => `<span class="chip">${flag(c.code)} ${c.name}</span>`).join('');
+      $('continents').innerHTML = Object.entries(WORLD).map(([k, list]) => { const n = list.split(' ').length; return `<button class="cont ${cont === k ? 'on' : ''}" data-cont="${k}"><b><span>${ICONS[k]} ${k}</span><span>${s.by[k]}/${n}</span></b><small>${Math.round((s.by[k] / n) * 100)}% посещено</small><div class="bar"><i style="width:${(s.by[k] / n) * 100}%"></i></div></button>`; }).join('');
+      const list = COUNTRIES.filter((c) => (!cont || c.cont === cont) && (!q || c.name.toLowerCase().includes(q)))
+        .sort((a, b) => (marks[b.code] === 'v') - (marks[a.code] === 'v') || a.name.localeCompare(b.name, 'ru'));
+      $('flags').innerHTML = list.map((c) => `<button class="flag ${marks[c.code] || ''} ${c.code === popCode ? 'pop' : ''}" data-c="${c.code}" aria-pressed="${marks[c.code] === 'v'}"><span>${flag(c.code)}</span><small>${c.name}</small></button>`).join('') || '<p style="color:var(--muted)">Ничего не найдено</p>';
+      $('badges').innerHTML = BADGES.map(([e, n, d, ok]) => `<div class="badge ${ok(s) ? 'got' : ''}"><span>${e}</span><b>${n}</b><small>${d}</small></div>`).join('');
+      popCode = null;
+    }
+    $('flags').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-c]'); if (!b) return;
+      const c = b.dataset.c;
+      marks[c] = marks[c] === mode ? undefined : mode;
+      if (!marks[c]) delete marks[c];
+      store.set('marks', marks);
+      popCode = c;
+      render();
+    });
+    $('continents').addEventListener('click', (e) => { const b = e.target.closest('[data-cont]'); if (b) { cont = cont === b.dataset.cont ? null : b.dataset.cont; render(); } });
+    document.querySelector('.mode').addEventListener('click', (e) => { const b = e.target.closest('[data-mode]'); if (!b) return; mode = b.dataset.mode; document.querySelectorAll('.mode button').forEach((x) => x.classList.toggle('on', x === b)); });
+    $('search').addEventListener('input', (e) => { q = e.target.value.trim().toLowerCase(); render(); });
+    $('share').onclick = async () => {
+      const s = stats();
+      const text = `Мои путешествия: ${s.v} ${plural(s.v, 'страна', 'страны', 'стран')} — это ${((s.v / TOTAL) * 100).toFixed(1)}% мира 🌍\n${COUNTRIES.filter((c) => marks[c.code] === 'v').map((c) => flag(c.code)).join('')}`;
+      try { if (navigator.share) await navigator.share({ text }); else { await navigator.clipboard.writeText(text); $('share').textContent = 'Скопировано ✓'; setTimeout(() => { $('share').textContent = 'Поделиться результатом'; }, 1500); } } catch {}
+    };
+    render();
+  </script>
+</body>
+</html>
